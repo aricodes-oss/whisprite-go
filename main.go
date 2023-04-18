@@ -7,7 +7,6 @@ import (
 	"github.com/Adeithe/go-twitch"
 	"github.com/Adeithe/go-twitch/irc"
 	"github.com/aricodes-oss/std"
-
 	"github.com/nicklaw5/helix/v2"
 
 	"os"
