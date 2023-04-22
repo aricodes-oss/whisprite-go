@@ -1,6 +1,8 @@
 package main
 
-import "github.com/nicklaw5/helix/v2"
+import (
+	"github.com/nicklaw5/helix/v2"
+)
 
 type Dispatch struct {
 	handlers []*Handler
