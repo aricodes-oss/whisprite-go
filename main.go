@@ -26,56 +26,34 @@ var (
 	BOT_MODE     = os.Getenv("BOT_MODE")
 )
 
-func commandDispatch(c chan *CommandEvent, running chan bool) {
-	for {
-		select {
-		case ev := <-c:
-			log.Debugf("Received event %v", ev)
-			err := ev.Parse()
-
-			if err != nil {
-				log.Errorf("Failed to parse message %s | %v", ev.Text, err)
-			}
-		case <-running:
-			return
-		}
-	}
-}
-
 func main() {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP)
-
-	dispatch := make(chan *CommandEvent, 1024)
-	running := make(chan bool, 1)
-
-	go commandDispatch(dispatch, running)
-	defer close(running)
 
 	if BOT_MODE == "development" {
 		log.WithDebug()
 	}
 
-	log.Info("Booting whisprite! Connecting to twitch services...")
+	log.Info("Connecting to twitch services...")
 	helixClient, err := helix.NewClient(&helix.Options{ClientID: CLIENT_ID, UserAccessToken: ACCESS_TOKEN})
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info("Done! Bootstrapping the application")
+
+	log.Info("Bootstrapping the application...")
+	dispatch := &Dispatch{Twitch: helixClient}
 
 	log.Info("Creating IRC read pool...")
 	reader := twitch.IRC()
 	reader.OnShardMessage(func(shardID int, msg irc.ChatMessage) {
 		log.Debugf("[%v] %v", shardID, msg)
 		isCommand := msg.Text[0] == '!'
-
 		if isCommand {
-			dispatch <- &CommandEvent{
+			go dispatch.Handle(&Event{
 				msg,
 				"",
 				[]string{},
-				helixClient,
-			}
+			})
 		}
 	})
 	defer reader.Close()
