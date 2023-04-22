@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Alias struct {
+type CommandAlias struct {
 	gorm.Model
 	Name   string
 	Target string `gorm:"index"`

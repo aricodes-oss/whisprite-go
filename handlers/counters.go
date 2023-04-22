@@ -1,14 +1,17 @@
 package handlers
 
-import "whisprite/core"
+import (
+	"whisprite/core"
+)
 
-var newCounter = &core.Handler{
+var newCounter = core.Handler{
 	Name:        "newcounter",
 	ModRequired: true,
-	Run: func(dispatch *core.Dispatch, event *core.Event, self *core.Handler) {
+	Run: func(dispatch core.Dispatch, event core.Event, self core.Handler) {
+		event.Say(event.Channel, "We in it, fellas")
 	},
 }
 
-var Counters = []*core.Handler{
+var Counters = []core.Handler{
 	newCounter,
 }

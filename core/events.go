@@ -16,8 +16,8 @@ type Event struct {
 	IsVIP         bool
 	IsBroadcaster bool
 
-	Wsay  func(string, string) error
-	Wsayf func(string, string, ...interface{}) error
+	Say  func(string, string) error
+	Sayf func(string, string, ...interface{}) error
 }
 
 func (e *Event) Parse() (err error) {
@@ -29,12 +29,4 @@ func (e *Event) Parse() (err error) {
 
 	e.Args = args[1:]
 	return
-}
-
-func (e *Event) Say(text string) error {
-	return e.Wsay(e.Channel, text)
-}
-
-func (e *Event) Sayf(format string, data ...interface{}) error {
-	return e.Wsayf(e.Channel, format, data...)
 }

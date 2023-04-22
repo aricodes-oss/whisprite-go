@@ -30,3 +30,4 @@ go.work
 whisprite-go
 whisprite
 code
+gen/gen

@@ -15,7 +15,9 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"whisprite/core"
+	"whisprite/db"
 	"whisprite/handlers"
+	"whisprite/query"
 )
 
 var log = std.Logger
@@ -28,6 +30,10 @@ var (
 	CHANNELS     = strings.Split(os.Getenv("TWITCH_CHANNEL_NAMES"), ",")
 	BOT_MODE     = os.Getenv("BOT_MODE")
 )
+
+func init() {
+	query.SetDefault(db.Connection)
+}
 
 func main() {
 	sc := make(chan os.Signal, 1)
@@ -43,17 +49,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Info("Bootstrapping the application...")
-	dispatch := &core.Dispatch{Twitch: helixClient}
-	dispatch.Register(handlers.Counters...)
-
 	log.Info("Opening up the writer thread...")
 	writer := &irc.Conn{}
 	writer.SetLogin(USERNAME, PASSWORD)
 	if err := writer.Connect(); err != nil {
 		log.Fatal(err)
 	}
-	defer writer.Close()
+
+	log.Info("Bootstrapping the application...")
+	dispatch := &core.Dispatch{Twitch: helixClient, Writer: writer}
+	dispatch.Register(append(
+		handlers.System,
+		handlers.Counters...,
+	)...)
 
 	/*
 	 * This is assigned to its own variable to avoid getting nil dereference errors
@@ -66,14 +74,14 @@ func main() {
 
 		isCommand := msg.Text[0] == '!'
 		if isCommand {
-			event := &core.Event{
+			event := core.Event{
 				ChatMessage:   msg,
 				IsMod:         msg.Sender.IsModerator,
 				IsVIP:         msg.Sender.IsVIP,
 				IsBroadcaster: msg.Sender.IsBroadcaster,
 
-				Wsay:  writer.Say,
-				Wsayf: writer.Sayf,
+				Say:  writer.Say,
+				Sayf: writer.Sayf,
 			}
 
 			err := event.Parse()
@@ -81,7 +89,7 @@ func main() {
 				panic(err)
 			}
 
-			go dispatch.Handle(event)
+			dispatch.Handle(event)
 		}
 	}
 

@@ -17,7 +17,7 @@ import (
 
 var (
 	Q                   = new(Query)
-	Alias               *alias
+	CommandAlias        *commandAlias
 	Counter             *counter
 	CounterContribution *counterContribution
 	Quote               *quote
@@ -26,7 +26,7 @@ var (
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
-	Alias = &Q.Alias
+	CommandAlias = &Q.CommandAlias
 	Counter = &Q.Counter
 	CounterContribution = &Q.CounterContribution
 	Quote = &Q.Quote
@@ -36,7 +36,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:                  db,
-		Alias:               newAlias(db, opts...),
+		CommandAlias:        newCommandAlias(db, opts...),
 		Counter:             newCounter(db, opts...),
 		CounterContribution: newCounterContribution(db, opts...),
 		Quote:               newQuote(db, opts...),
@@ -47,7 +47,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 type Query struct {
 	db *gorm.DB
 
-	Alias               alias
+	CommandAlias        commandAlias
 	Counter             counter
 	CounterContribution counterContribution
 	Quote               quote
@@ -59,7 +59,7 @@ func (q *Query) Available() bool { return q.db != nil }
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:                  db,
-		Alias:               q.Alias.clone(db),
+		CommandAlias:        q.CommandAlias.clone(db),
 		Counter:             q.Counter.clone(db),
 		CounterContribution: q.CounterContribution.clone(db),
 		Quote:               q.Quote.clone(db),
@@ -78,7 +78,7 @@ func (q *Query) WriteDB() *Query {
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:                  db,
-		Alias:               q.Alias.replaceDB(db),
+		CommandAlias:        q.CommandAlias.replaceDB(db),
 		Counter:             q.Counter.replaceDB(db),
 		CounterContribution: q.CounterContribution.replaceDB(db),
 		Quote:               q.Quote.replaceDB(db),
@@ -87,7 +87,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 }
 
 type queryCtx struct {
-	Alias               IAliasDo
+	CommandAlias        ICommandAliasDo
 	Counter             ICounterDo
 	CounterContribution ICounterContributionDo
 	Quote               IQuoteDo
@@ -96,7 +96,7 @@ type queryCtx struct {
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Alias:               q.Alias.WithContext(ctx),
+		CommandAlias:        q.CommandAlias.WithContext(ctx),
 		Counter:             q.Counter.WithContext(ctx),
 		CounterContribution: q.CounterContribution.WithContext(ctx),
 		Quote:               q.Quote.WithContext(ctx),

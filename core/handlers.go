@@ -7,7 +7,7 @@ import (
 
 type Handler struct {
 	Name        string
-	Run         func(dispatch *Dispatch, event *Event, self *Handler)
+	Run         func(dispatch Dispatch, event Event, self Handler)
 	ModRequired bool
 	VipRequired bool
 }
@@ -20,17 +20,17 @@ func (h *Handler) RespondsTo(name string) bool {
 		return true
 	}
 
-	a := query.Alias
+	a := query.Q.CommandAlias
 
-	aliasCount, err := a.Where(a.Name.Eq(iname), a.Target.Eq(h.Name)).Count()
+	aliasCount, err := a.Where(a.Name.Eq(iname), a.Target.Eq(name)).Count()
 	if err != nil {
-		log.Errorf("Error finding alias for %s: %v", name, err)
+		log.Debugf("Error finding alias for %s: %v", name, err)
 	}
 
 	return aliasCount >= 1
 }
 
-func (h *Handler) Authenticate(event *Event) bool {
+func (h *Handler) Authenticate(event Event) bool {
 	if !h.ModRequired && !h.VipRequired {
 		return true
 	}
