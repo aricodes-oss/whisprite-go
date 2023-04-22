@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"github.com/Adeithe/go-twitch/irc"
@@ -24,6 +24,14 @@ func (e *Event) Parse() (err error) {
 		return err
 	}
 
-	e.Args = args
+	e.Args = args[1:]
 	return
 }
+
+// func (e *Event) Say(text string) error {
+// 	return e.Chat.Say(e.Channel, text)
+// }
+
+// func (e *Event) Reply(text string) error {
+// 	return e.Chat.Say(e.Channel, fmt.Sprintf("@%s %s", e.Sender.Username, text))
+// }

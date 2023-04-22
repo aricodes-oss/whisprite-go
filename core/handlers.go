@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"strings"
@@ -14,14 +14,20 @@ type Handler struct {
 
 func (h *Handler) RespondsTo(name string) bool {
 	iname := strings.ToLower(name)
+
+	// Return early if it matches outright, no need to hang for the db
+	if iname == h.Name {
+		return true
+	}
+
 	a := query.Alias
 
-	matchingAlias, err := a.Where(a.Name.Eq(iname), a.Target.Eq(h.Name)).First()
+	aliasCount, err := a.Where(a.Name.Eq(iname), a.Target.Eq(h.Name)).Count()
 	if err != nil {
 		log.Errorf("Error finding alias for %s: %v", name, err)
 	}
 
-	return iname == h.Name || matchingAlias != nil
+	return aliasCount >= 1
 }
 
 func (h *Handler) Authenticate(event *Event) bool {

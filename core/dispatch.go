@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"github.com/nicklaw5/helix/v2"
@@ -9,8 +9,8 @@ type Dispatch struct {
 	Twitch   *helix.Client
 }
 
-func (d *Dispatch) Register(handler *Handler) {
-	d.handlers = append(d.handlers, handler)
+func (d *Dispatch) Register(handlers ...*Handler) {
+	d.handlers = append(d.handlers, handlers...)
 }
 
 func (d *Dispatch) Handle(event *Event) {

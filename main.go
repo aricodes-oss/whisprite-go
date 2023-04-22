@@ -13,6 +13,9 @@ import (
 	"strings"
 
 	_ "github.com/joho/godotenv/autoload"
+
+	"whisprite/core"
+	"whisprite/handlers"
 )
 
 var log = std.Logger
@@ -41,24 +44,36 @@ func main() {
 	}
 
 	log.Info("Bootstrapping the application...")
-	dispatch := &Dispatch{Twitch: helixClient}
+	dispatch := &core.Dispatch{Twitch: helixClient}
+	dispatch.Register(handlers.Counters...)
 
-	log.Info("Creating IRC read pool...")
+	log.Info("Opening up the writer thread...")
+	writer := &irc.Conn{}
+	writer.SetLogin(USERNAME, PASSWORD)
+	if err := writer.Connect(); err != nil {
+		log.Fatal(err)
+	}
+	defer writer.Close()
+
+	log.Info("Creating sharded read pool...")
 	reader := twitch.IRC()
 	reader.OnShardMessage(func(shardID int, msg irc.ChatMessage) {
 		log.Debugf("[%v] %v", shardID, msg)
+
 		isCommand := msg.Text[0] == '!'
 		if isCommand {
-			event := &Event{
-				msg,
-				"",
-				[]string{},
-				msg.Sender.IsModerator,
-				msg.Sender.IsVIP,
-				msg.Sender.IsBroadcaster,
+			event := &core.Event{
+				ChatMessage:   msg,
+				IsMod:         msg.Sender.IsModerator,
+				IsVIP:         msg.Sender.IsVIP,
+				IsBroadcaster: msg.Sender.IsBroadcaster,
 			}
-			event.Parse()
+			err := event.Parse()
+			if err != nil {
+				panic(err)
+			}
 
+			log.Infof("Hit check")
 			go dispatch.Handle(event)
 		}
 	})
@@ -75,14 +90,6 @@ func main() {
 		log.Infof("Joining room %s (%s)...", user.DisplayName, user.ID)
 		reader.Join(user.Login)
 	}
-
-	log.Info("Opening up the writer thread...")
-	writer := &irc.Conn{}
-	writer.SetLogin(USERNAME, PASSWORD)
-	if err := writer.Connect(); err != nil {
-		log.Fatal(err)
-	}
-	defer writer.Close()
 
 	log.Info("Ret-2-Go!")
 
