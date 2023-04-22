@@ -6,8 +6,10 @@ import (
 )
 
 type Handler struct {
-	Name string
-	Run  func(dispatch *Dispatch, event *Event, self *Handler)
+	Name        string
+	Run         func(dispatch *Dispatch, event *Event, self *Handler)
+	ModRequired bool
+	VipRequired bool
 }
 
 func (h *Handler) RespondsTo(name string) bool {
@@ -20,4 +22,16 @@ func (h *Handler) RespondsTo(name string) bool {
 	}
 
 	return iname == h.Name || matchingAlias != nil
+}
+
+func (h *Handler) Authenticate(event *Event) bool {
+	if !h.ModRequired && !h.VipRequired {
+		return true
+	}
+
+	vipValid := h.VipRequired && (event.IsMod || event.IsVIP)
+	modValid := (h.ModRequired && !h.VipRequired) && (event.IsMod)
+
+	// Streamer can run whatever command whenevr
+	return (vipValid || modValid) || event.IsBroadcaster
 }

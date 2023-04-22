@@ -10,17 +10,20 @@ import (
 type Event struct {
 	irc.ChatMessage
 
-	Name string
-	Args []string
+	Name          string
+	Args          []string
+	IsMod         bool
+	IsVIP         bool
+	IsBroadcaster bool
 }
 
-func (c *Event) Parse() (err error) {
-	c.Name = strings.Split(c.Text, " ")[0][1:]
-	args, err := shlex.Split(c.Text, true)
+func (e *Event) Parse() (err error) {
+	e.Name = strings.Split(e.Text, " ")[0][1:]
+	args, err := shlex.Split(e.Text, true)
 	if err != nil {
 		return err
 	}
 
-	c.Args = args
+	e.Args = args
 	return
 }

@@ -49,11 +49,17 @@ func main() {
 		log.Debugf("[%v] %v", shardID, msg)
 		isCommand := msg.Text[0] == '!'
 		if isCommand {
-			go dispatch.Handle(&Event{
+			event := &Event{
 				msg,
 				"",
 				[]string{},
-			})
+				msg.Sender.IsModerator,
+				msg.Sender.IsVIP,
+				msg.Sender.IsBroadcaster,
+			}
+			event.Parse()
+
+			go dispatch.Handle(event)
 		}
 	})
 	defer reader.Close()

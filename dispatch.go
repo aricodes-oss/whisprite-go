@@ -15,7 +15,7 @@ func (d *Dispatch) Register(handler *Handler) {
 
 func (d *Dispatch) Handle(event *Event) {
 	for idx, handler := range d.handlers {
-		if handler.RespondsTo(event.Name) {
+		if handler.RespondsTo(event.Name) && handler.Authenticate(event) {
 			log.Debugf("Command %s (position %v) matched handler %s, firing", event.Name, idx, handler.Name)
 			handler.Run(d, event, handler)
 		}
