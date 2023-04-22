@@ -55,9 +55,13 @@ func main() {
 	}
 	defer writer.Close()
 
-	log.Info("Creating sharded read pool...")
-	reader := twitch.IRC()
-	reader.OnShardMessage(func(shardID int, msg irc.ChatMessage) {
+	/*
+	 * This is assigned to its own variable to avoid getting nil dereference errors
+	 * when referring to the writer inside of the message handler. Anonymous functions
+	 * declared as variables are closures that evaluate their scope at run time, whereas
+	 * anonymous functions passed directly as arguments evaluate their scope at compile time
+	 */
+	onMsg := func(shardID int, msg irc.ChatMessage) {
 		log.Debugf("[%v] %v", shardID, msg)
 
 		isCommand := msg.Text[0] == '!'
@@ -67,16 +71,23 @@ func main() {
 				IsMod:         msg.Sender.IsModerator,
 				IsVIP:         msg.Sender.IsVIP,
 				IsBroadcaster: msg.Sender.IsBroadcaster,
+
+				Wsay:  writer.Say,
+				Wsayf: writer.Sayf,
 			}
+
 			err := event.Parse()
 			if err != nil {
 				panic(err)
 			}
 
-			log.Infof("Hit check")
 			go dispatch.Handle(event)
 		}
-	})
+	}
+
+	log.Info("Creating sharded read pool...")
+	reader := twitch.IRC()
+	reader.OnShardMessage(onMsg)
 	defer reader.Close()
 
 	log.Info("Pulling user information from the API...")

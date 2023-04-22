@@ -15,6 +15,9 @@ type Event struct {
 	IsMod         bool
 	IsVIP         bool
 	IsBroadcaster bool
+
+	Wsay  func(string, string) error
+	Wsayf func(string, string, ...interface{}) error
 }
 
 func (e *Event) Parse() (err error) {
@@ -28,10 +31,10 @@ func (e *Event) Parse() (err error) {
 	return
 }
 
-// func (e *Event) Say(text string) error {
-// 	return e.Chat.Say(e.Channel, text)
-// }
+func (e *Event) Say(text string) error {
+	return e.Wsay(e.Channel, text)
+}
 
-// func (e *Event) Reply(text string) error {
-// 	return e.Chat.Say(e.Channel, fmt.Sprintf("@%s %s", e.Sender.Username, text))
-// }
+func (e *Event) Sayf(format string, data ...interface{}) error {
+	return e.Wsayf(e.Channel, format, data...)
+}
