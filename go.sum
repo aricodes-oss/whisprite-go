@@ -1,5 +1,7 @@
 github.com/Adeithe/go-twitch v0.1.3 h1:8Q23jWCX2QnoMo4FddkUmQyzVoh/e7NTWE0E93nPi+s=
 github.com/Adeithe/go-twitch v0.1.3/go.mod h1:prRQ2xlTM0BVcQYx+WGK7GO0jw2uGOWCHGUCJIg1910=
+github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be h1:9AeTilPcZAjCFIImctFaOjnTIavg87rW78vTPkQqLI8=
+github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be/go.mod h1:ySMOLuWl6zY27l47sB3qLNK6tF2fkHG55UZxx8oIVo4=
 github.com/aricodes-oss/std v0.0.0-20230409001114-847c0cb834ca h1:WMoaR+gVf3D/cRQWa7LTgOubPsznPm2GJUuBKZtGGtk=
 github.com/aricodes-oss/std v0.0.0-20230409001114-847c0cb834ca/go.mod h1:vxpeSqqnGKYFxuOMjZWVVCvSfOjx+htlGG583FS8Rzk=
 github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=

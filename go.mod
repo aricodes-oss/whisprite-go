@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/Adeithe/go-twitch v0.1.3
+	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be
 	github.com/aricodes-oss/std v0.0.0-20230409001114-847c0cb834ca
 	github.com/joho/godotenv v1.5.1
 	github.com/nicklaw5/helix/v2 v2.22.1
