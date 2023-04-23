@@ -22,12 +22,20 @@ func (h *Handler) RespondsTo(name string) bool {
 
 	a := query.Q.CommandAlias
 
-	aliasCount, err := a.Where(a.Name.Eq(iname), a.Target.Eq(name)).Count()
-	if err != nil {
-		log.Debugf("Error finding alias for %s: %v", name, err)
+	// Recursively resolve aliases
+	found, err := a.Where(a.Name.Eq(iname)).First()
+	if found != nil {
+		for found.Target != h.Name {
+			found, err = a.Where(a.Name.Eq(found.Target)).First()
+		}
 	}
 
-	return aliasCount >= 1
+	if err != nil {
+		log.Debugf("Error finding alias for %s: %v", name, err)
+		log.Debug(found)
+	}
+
+	return found != nil
 }
 
 func (h *Handler) Authenticate(event Event) bool {
