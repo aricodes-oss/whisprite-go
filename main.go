@@ -29,6 +29,11 @@ var (
 	USERNAME     = os.Getenv("TWITCH_USERNAME")
 	CHANNELS     = strings.Split(os.Getenv("TWITCH_CHANNEL_NAMES"), ",")
 	BOT_MODE     = os.Getenv("BOT_MODE")
+
+	DEFAULT_HANDLERS = map[string]core.Handlers{
+		"sys":      handlers.System,
+		"counters": handlers.Counters,
+	}
 )
 
 func init() {
@@ -39,6 +44,7 @@ func main() {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP)
 
+	log.Info("Bootstrapping the application...")
 	if BOT_MODE == "development" {
 		log.WithDebug()
 	}
@@ -56,12 +62,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Info("Bootstrapping the application...")
 	dispatch := &core.Dispatch{Twitch: helixClient, Writer: writer}
-	dispatch.Register(append(
-		handlers.System,
-		handlers.Counters...,
-	)...)
+	for pool, handlers := range DEFAULT_HANDLERS {
+		dispatch.Register(pool, handlers...)
+	}
+
+	dispatch.RegisterCounters()
 
 	/*
 	 * This is assigned to its own variable to avoid getting nil dereference errors

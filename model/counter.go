@@ -7,7 +7,7 @@ import (
 type Counter struct {
 	gorm.Model
 
-	Name          string
+	Name          string `gorm:"unique"`
 	Value         uint64
 	Contributions []CounterContribution
 }

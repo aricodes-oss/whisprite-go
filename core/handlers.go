@@ -32,20 +32,19 @@ func (h *Handler) RespondsTo(name string) bool {
 
 	if err != nil {
 		log.Debugf("Error finding alias for %s: %v", name, err)
-		log.Debug(found)
 	}
 
 	return found != nil
 }
 
 func (h *Handler) Authenticate(event Event) bool {
-	if !h.ModRequired && !h.VipRequired {
+	if (!h.ModRequired && !h.VipRequired) || event.IsBroadcaster {
 		return true
 	}
 
 	vipValid := h.VipRequired && (event.IsMod || event.IsVIP)
-	modValid := (h.ModRequired && !h.VipRequired) && (event.IsMod)
+	modValid := (h.ModRequired && !h.VipRequired) && event.IsMod
 
 	// Streamer can run whatever command whenevr
-	return (vipValid || modValid) || event.IsBroadcaster
+	return vipValid || modValid
 }

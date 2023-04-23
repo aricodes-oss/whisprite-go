@@ -6,6 +6,6 @@ import (
 
 type CommandAlias struct {
 	gorm.Model
-	Name   string
+	Name   string `gorm:"unique"`
 	Target string `gorm:"index"`
 }
