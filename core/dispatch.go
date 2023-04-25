@@ -44,7 +44,6 @@ func (d *Dispatch) RegisterCounters() {
 			Name: counter.Name,
 			Run: func(d Dispatch, e Event, self Handler) {
 				c.Where(c.Name.Eq(e.Name)).Update(c.Value, c.Value.Add(1))
-				d.RegisterCounters()
 				e.Sayf(e.Channel, "The %s counter is now at %d.", e.Name, counter.Value+1)
 			},
 		}

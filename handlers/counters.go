@@ -25,7 +25,6 @@ var Counters = []core.Handler{
 			}
 
 			c.Create(&model.Counter{Name: iname, Value: 1})
-			d.RegisterCounters()
 			e.Sayf(e.Channel, "Created counter %s", iname)
 		},
 	},
@@ -51,7 +50,26 @@ var Counters = []core.Handler{
 			}
 
 			e.Sayf(e.Channel, "Deleted counter %s", iname)
-			d.RegisterCounters()
+		},
+	},
+
+	{
+		Name:        "uncount",
+		ModRequired: true,
+		Run: func(d core.Dispatch, e core.Event, self core.Handler) {
+			var (
+				c     = query.Counter
+				iname = strings.ToLower(e.Args[0])
+			)
+
+			counter, _ := c.Where(c.Name.Eq(iname)).First()
+			if counter == nil {
+				e.Say(e.Channel, "No such counter :shrug:")
+				return
+			}
+
+			c.Where(c.Name.Eq(iname)).Update(c.Value, c.Value.Sub(1))
+			e.Sayf(e.Channel, "The %s counter is now at %d", iname, counter.Value-1)
 		},
 	},
 }

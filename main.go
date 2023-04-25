@@ -95,7 +95,7 @@ func main() {
 				panic(err)
 			}
 
-			go dispatch.Handle(event)
+			dispatch.Handle(event)
 		}
 	}
 
